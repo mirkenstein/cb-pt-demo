@@ -7,6 +7,7 @@ wget https://packages.couchbase.com/releases/7.1.3/couchbase-server-enterprise-7
 
 ```
 
+
 https://devblog.songkick.com/parsing-ginormous-json-files-via-streaming-be6561ea8671
 <!--  -->
 sed 's/{"provider_references": \[//' | sed 's/},/}/' | sed ':begin;$!N;s/}\]\n}/}/;tbegin;P;D'
@@ -69,11 +70,14 @@ sys     0m16.756s
 Extract all urls for in-network files 
 ```shell
 jq '.reporting_structure[].in_network_files[].location' 2022-12-01_Zurich-American-Insurance-Companies_index.json 
+jq  -n --stream 'fromstream(1|truncate_stream(inputs|select(.[0][0] )| del(.[0][0:3])))' 2022-12-01_WTP---Zurich_index.json 
 
 jq '.reporting_structure[].in_network_files[]?.location' 2022-12-01_cigna-health-life-insurance-company_index.json  |xargs wget 
+ jq  -n --stream 'fromstream(2|truncate_stream(inputs|select(.[0][0] )))|.[][]?.location'   2022-12-01_anthem_index.json |xargs wget 
+
 
 ```
-
+[https://stackoverflow.com/questions/39232060/process-large-json-stream-with-jq](https://stackoverflow.com/questions/39232060/process-large-json-stream-with-jq)
 ### Extract Sublist via sed
 [https://stackoverflow.com/questions/38972736/how-to-print-lines-between-two-patterns-inclusive-or-exclusive-in-sed-awk-or/38978201#38978201](https://stackoverflow.com/questions/38972736/how-to-print-lines-between-two-patterns-inclusive-or-exclusive-in-sed-awk-or/38978201#38978201)
 ```shell
