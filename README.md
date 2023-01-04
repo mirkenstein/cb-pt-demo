@@ -1,4 +1,13 @@
-### Obtain MRF file from here
+# CMS Transparency in Coverage
+[https://www.cms.gov/healthplan-price-transparency](https://www.cms.gov/healthplan-price-transparency)
+
+Most group health plans are required to disclose pricing information. The pricing information is published via a machine-readable files aka MRF
+which contains costs for services with the references to the providers that are rendering these services.
+
+The official CMS developer documentation can be found on the follwoing github page
+[https://github.com/CMSgov/price-transparency-guide](https://github.com/CMSgov/price-transparency-guide)
+
+### Obtaining the MRF files
 Here are the direct urls for the Price Transparency data for selected payers.  
 
 [https://www.bcbsil.com/member/policy-forms/machine-readable-file](https://www.bcbsil.com/member/policy-forms/machine-readable-file)
@@ -7,7 +16,6 @@ Here are the direct urls for the Price Transparency data for selected payers.
 [https://www.anthem.com/machine-readable-file/search/](https://www.anthem.com/machine-readable-file/search/)
 [https://mrfdata.hmhs.com/](https://mrfdata.hmhs.com/)
 
-[https://blog.serifhealth.com/blog-posts/november-mrf-processing-notes](https://blog.serifhealth.com/blog-posts/november-mrf-processing-notes)
 
 First we would download the index file which contains the links to all the actual MRF files.
 One way extract the urls is via the `jq`
@@ -24,7 +32,8 @@ The command above splits the index file into individual items lines that are con
 
 # MRF File Schema
 They are large files that are commonly reach tens of gigabytes each. 
-The files structure has the following schema.
+Here are the CMS guidelines for the schem [https://github.com/CMSgov/price-transparency-guide/tree/master/schemas/in-network-rates](https://github.com/CMSgov/price-transparency-guide/tree/master/schemas/in-network-rates)
+The files structure looks like this...
 
 ### Top Level File Structure
 ```json
@@ -113,8 +122,9 @@ jq -c --stream 'fromstream(2|truncate_stream(inputs|select(.[0][0]=="provider_re
 The two `jq` commands will extract the list items into a compact json lines. Each line containing a single item from the respective collection.
 
 # Loading the data
-Many of the payers use similar filename notation which has the following    
-`2022-12-01_<Payer Name String>_<Arrangament>_<Unique Identifier String>_in-network-rates.json` for example
+Per the plan naming conventions [https://github.com/CMSgov/price-transparency-guide#file-naming-convention](https://github.com/CMSgov/price-transparency-guide#file-naming-convention)
+The payers use the following name structure    
+`2022-12-01_<Payer Name String>_<Arrangament>_<Pan ID>_in-network-rates.json` for example
 
 `2022-12-01_Some-Payer-Name-Inc-_Third-Party-Administrator_AB1-10_C3_in-network-rates.json`
 We will use the `<Unique Identifier String>` AB1-10_C3 as part of the key for our items. 

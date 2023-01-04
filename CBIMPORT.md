@@ -166,3 +166,5 @@ CREATE PRIMARY INDEX `#primary_prov` ON `pt_bucket`.`provider`.references
 
 
 ```
+
+[https://blog.serifhealth.com/blog-posts/november-mrf-processing-notes](https://blog.serifhealth.com/blog-posts/november-mrf-processing-notes)
