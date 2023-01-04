@@ -58,3 +58,51 @@ WHERE  t.billing_code = 'J1700'
 AND meta(t2).id LIKE 'key::PS1-50_C2%'
 ```
 We get `871 304` providers. If we compute uniq `COUNT(DISTINCT npi)` then the number of providers is slightly lower 642956
+
+
+### Typical Application Query
+
+```sql
+SELECT
+    DISTINCT     ppr,t.*,pg.*,npi,nppes.prov_business_zip
+FROM  `pt_bucket`.`uh`.`in_network` t
+UNNEST t.`negotiated_rates` p
+UNNEST p.`provider_references` ppr
+
+INNER JOIN `pt_bucket`.`uh`.provider_references t2
+ON t2.provider_group_id=ppr
+
+UNNEST t2.provider_groups pg
+UNNEST pg.npi npi
+
+INNER JOIN  pt_bucket.provider.nppes nppes  ON nppes.npi_int=npi
+
+WHERE  t.billing_code = 'J1700'
+AND nppes.prov_business_zip= '46260'
+AND meta(t2).id LIKE 'key::PS1-50_C2%'
+LIMIT 10
+```
+
+Indices used in the query above
+```sql
+CREATE INDEX adv_provider_group_id           ON `pt_bucket`.`uh`.`provider_references`(`provider_group_id`);
+CREATE INDEX `adv_npi_int_prov_business_zip` ON `pt_bucket`.`provider`.`nppes`(`npi_int`,`prov_business_zip`) ;
+CREATE INDEX adv_billing_code                ON `pt_bucket`.`uh`.`in_network`(`billing_code`);
+CREATE INDEX adv_npi_int                     ON `pt_bucket`.`provider`.`nppes`(`npi_int`);
+```
+
+Index Advisor. Indices not created.
+```sql
+CREATE INDEX adv_ALL_provider_groups_npi_meta_id_provider_group_id ON `default`:`pt_bucket`.`uh`.`provider_references`(_ALL ARRAY (ALL ARRAY `npi` FOR npi IN `pg`.`npi` END) FOR pg IN `provider_groups` END,meta().`id`,`provider_group_id`)
+CREATE INDEX adv_ALL_negotiated_rates_provider_references_billing_code ON `default`:`pt_bucket`.`uh`.`in_network`(_ALL ARRAY (ALL ARRAY `ppr` FOR ppr IN `p`.`provider_references` END) FOR p IN `negotiated_rates` END,`billing_code`)
+```
+Error Message when trying to create the index above
+```json
+[
+  {
+    "code": 3000,
+    "msg": "syntax error - line 1, column 124, near 'm`.`in_network`(_ALL', at: ARRAY (reserved word)",
+    "query": "CREATE INDEX adv_ALL_negotiated_rates_provider_references_billing_code ON `default`:`pt_bucket`.`anthem`.`in_network`(_ALL ARRAY (ALL ARRAY `ppr` FOR ppr IN `p`.`provider_references` END) FOR p IN `negotiated_rates` END,`billing_code`)"
+  }
+]
+```
