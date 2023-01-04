@@ -25,7 +25,7 @@ jq -c --stream 'fromstream(2|truncate_stream(inputs|select(.[0][0]=="provider_re
 ```shell
 
 jq -cn '.in_network  ' 2022-08-15_OptumBH_2000_OBH_Connecticare_in-network-rates.json >simple_in_network.json
-jq -cn '.provider_references  ' 2022-08-15_OptumBH_2000_OBH_Connecticare_in-network-rates.json >simple_prov_ref.json
+jq -c '.provider_references  ' 2022-08-15_OptumBH_2000_OBH_Connecticare_in-network-rates.json >simple_prov_ref.json
 ```
 
 ### Anthem Index
@@ -43,16 +43,17 @@ jq -cn '.in_network_files[].location' index1.json |while read l; do echo ${l%%.g
 
 ```
 
-Check the number of records in a fuke and estimate percentage of lines for the network price data.
+Check the number of records in a file and estimate percentage of lines for the network price data.
 ```shell
 awk '/in_network/{print NR}END{print NR}' 2022-12_254_39B0_in-network-rates_1_of_12.json
 9 298 390
 9 321 241
 ```
-
- find *.json -type f |while read f; do jq -cn '.provider_references  ' $f >cb_import/prov_ref/${f%.json}_prov_ref.json ;done
-find *.json -type f |while read f; do jq -cn '.in_network  ' $f >cb_import/in_network/${f%.json}.json ;done
-
+For smaller files we can run the JSON extraction in-memory 
+```shell
+ find *.json -type f |while read f; do jq -c '.provider_references  ' $f >cb_import/prov_ref/${f%.json}_prov_ref.json ;done
+find *.json -type f |while read f; do jq -c '.in_network  ' $f >cb_import/in_network/${f%.json}.json ;done
+```
  2022-12_400_59H0_in-network-rates.json.gz 
  2022-12_040_05C0_in-network-rates_1_of_2.json.gz 
  2022-12_280_36B0_in-network-rates.json.gz 
