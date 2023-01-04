@@ -192,4 +192,4 @@ SET npi_int= TONUMBER(t.NPI);
 ```
 
 # N1QL 
-See the [N1QL_EXPLORE.md](notes/N1QL_EXPLORE.md)
+See the [N1QL_EXPLORE.md](N1QL_EXPLORE.md)
