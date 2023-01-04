@@ -132,11 +132,12 @@ We will use the `<Unique Identifier String>` AB1-10_C3 as part of the key for ou
 ### Rates Data
 ```shell
  for i in `ls`;do export l=$(echo $i|grep -oP '(?<=Administrator_).+?(?=_in-net)' ); \
- echo Loading Rates for File $i;  \
+echo "Loading Rates from file $i";  \
 /opt/couchbase/bin/cbimport json --username  $cb_user  --password $cb_password --bucket pt_bucket \
 --dataset  file://$i  -f lines \
 -c $cb_connection_string --no-ssl-verify  \
--g key::$l::%billing_code%::%billing_code_type%::%negotiation_arrangement% --scope-collection-exp uh.in_network -t 4; \
+-g key::$l::%billing_code%::%billing_code_type%::%negotiation_arrangement% \
+--scope-collection-exp uh.in_network -t 4; \
 done 
 ```
 Where we set out variables 
@@ -153,7 +154,7 @@ From inside that directory we will load the provider references.
 
 ```shell
  for i in `ls`;do export l=$(echo $i|grep -oP '(?<=Administrator_).+?(?=_in-net)' ); \
- echo $i;  \
+ echo "Loading Prov Ref from file $i"; ;  \
 /opt/couchbase/bin/cbimport json --username  $cb_user  --password $cb_password --bucket pt_bucket \
 --dataset  file://$i  -f lines \
 -c $cb_connection_string  --no-ssl-verify  \
@@ -176,7 +177,8 @@ The file is CSV. We will use the `cbimport-csv` without the `--infer-types` argu
 ```shell
 /opt/couchbase/bin/cbimport csv   -c  $cb_connection_string  --no-ssl-verify   \
 -u $cb_user -p  $cb_password  \
--d 'file://npidata_pfile_20050523-20221211.csv' -b 'pt_bucket' --scope-collection-exp "provider.nppes" -g %NPI% -t 4
+-d 'file://npidata_pfile_20050523-20221211.csv' -b 'pt_bucket' \
+--scope-collection-exp "provider.nppes" -g %NPI% -t 4
 ```
 Next we will add the 5 character zipcode and create NPI integer field that we will use for the `N1QL JOIN`. 
 ```sql
@@ -190,4 +192,4 @@ SET npi_int= TONUMBER(t.NPI);
 ```
 
 # N1QL 
-See the [N1QL_EXPLORE.md](N1QL_EXPLORE.md)
+See the [N1QL_EXPLORE.md](notes/N1QL_EXPLORE.md)
