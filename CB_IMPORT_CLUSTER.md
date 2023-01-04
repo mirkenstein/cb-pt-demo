@@ -220,5 +220,3 @@ ZipCode Coordinates
 -d 'file://zip5_coordinates.csv ' -b 'pt_bucket' --scope-collection-exp "provider.zip_coordinates" -g %zip% -t 10
 ```
 
-# N1QL 
-See the [N1QL_EXPLORE.md](N1QL_EXPLORE.md)

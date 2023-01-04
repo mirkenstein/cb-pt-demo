@@ -156,7 +156,8 @@ done
 
  
 ### NPPES Data 
-The `npi` list from the `provider_references
+
+The `npi` list from the `provider_references`
 We will use the dataset from CMS [https://download.cms.gov/nppes/NPI_Files.html](https://download.cms.gov/nppes/NPI_Files.html)
 Download the latest `Full Replacement Monthly NPI File` and extract the zip archive. The extracted file will be over 8GB size and will contains millions of entries.
 The file is CSV. We will use the `cbimport-csv` without the `--infer-types` argument.  
@@ -178,3 +179,5 @@ UPDATE pt_bucket.provider.nppes t
 SET npi_int= TONUMBER(t.NPI);
 ```
 
+# N1QL 
+See the [N1QL_EXPLORE.md](N1QL_EXPLORE.md)

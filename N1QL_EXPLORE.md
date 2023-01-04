@@ -57,4 +57,4 @@ UNNEST pg.npi npi
 WHERE  t.billing_code = 'J1700'
 AND meta(t2).id LIKE 'key::PS1-50_C2%'
 ```
-We get `871 304` providers. If we compute uniq `COUNT(DISTINCT npi)` then the numnber of providers is slightly lower 642956
+We get `871 304` providers. If we compute uniq `COUNT(DISTINCT npi)` then the number of providers is slightly lower 642956
