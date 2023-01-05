@@ -64,17 +64,18 @@ We get `871 304` providers. If we compute uniq `COUNT(DISTINCT npi)` then the nu
 
 ```sql
 SELECT
-    DISTINCT     ppr,t.*,pg.*,npi,nppes.prov_business_zip
+    DISTINCT     ppr,pr.*,pg.*,npi,nppes.prov_business_zip
+
 FROM  `pt_bucket`.`uh`.`in_network` t
+
 UNNEST t.`negotiated_rates` p
 UNNEST p.`provider_references` ppr
-
+UNNEST p.`negotiated_prices` pr
 INNER JOIN `pt_bucket`.`uh`.provider_references t2
 ON t2.provider_group_id=ppr
 
 UNNEST t2.provider_groups pg
 UNNEST pg.npi npi
-
 INNER JOIN  pt_bucket.provider.nppes nppes  ON nppes.npi_int=npi
 
 WHERE  t.billing_code = 'J1700'
