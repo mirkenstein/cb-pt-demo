@@ -62,9 +62,20 @@ We get `871 304` providers. If we compute uniq `COUNT(DISTINCT npi)` then the nu
 
 ### Typical Application Query
 
+We would need to filter on
+1. Billing Code
+2. Provider Location, i.e. Zip Code
+3. Plan ID which is contained in the substring from the filename from where the rates are uploaded from.
+```sql
+WHERE  t.billing_code = 'J1700'
+AND nppes.prov_business_zip= '56751'
+AND meta(t2).id LIKE 'key::PS1-50_C2%'
+```
+This query without the Zip Code Condition executes in under 100ms.
+Adding the Zip Code clause the query would not execute.
 ```sql
 SELECT
-    DISTINCT     ppr,pr.*,pg.*,npi,nppes.prov_business_zip
+    DISTINCT     t.billing_code, ppr.negotiated_rate,npi,nppes.prov_business_zip
 
 FROM  `pt_bucket`.`uh`.`in_network` t
 
@@ -79,17 +90,16 @@ UNNEST pg.npi npi
 INNER JOIN  pt_bucket.provider.nppes nppes  ON nppes.npi_int=npi
 
 WHERE  t.billing_code = 'J1700'
-AND nppes.prov_business_zip= '46260'
+AND nppes.prov_business_zip= '56751'
 AND meta(t2).id LIKE 'key::PS1-50_C2%'
 LIMIT 10
-```
+```d
 
 Indices used in the query above
 ```sql
-CREATE INDEX adv_provider_group_id           ON `pt_bucket`.`uh`.`provider_references`(`provider_group_id`);
-CREATE INDEX `adv_npi_int_prov_business_zip` ON `pt_bucket`.`provider`.`nppes`(`npi_int`,`prov_business_zip`) ;
-CREATE INDEX adv_billing_code                ON `pt_bucket`.`uh`.`in_network`(`billing_code`);
-CREATE INDEX adv_npi_int                     ON `pt_bucket`.`provider`.`nppes`(`npi_int`);
+CREATE INDEX idx_provider_references ON `default`:`pt_bucket`.`uh`.`in_network`(`billing_code`,(distinct (array (distinct (array `y` for `y` in (`x`.`provider_references`) end)) for `x` in `negotiated_rates` end))) PARTITION BY HASH(`billing_code`)
+CREATE INDEX idx_provider_group_id ON `default`:`pt_bucket`.`uh`.`provider_references`(`provider_group_id`)
+CREATE INDEX adv_npi_int_prov_business_zip ON `default`:`pt_bucket`.`provider`.`nppes`(`npi_int`,`prov_business_zip`)
 ```
 
 Index Advisor. Indices not created.
