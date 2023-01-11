@@ -72,7 +72,10 @@ AND nppes.prov_business_zip= '56751'
 AND meta(t2).id LIKE 'key::PS1-50_C2%'
 ```
 This query without the Zip Code Condition executes in under 100ms.
-Adding the Zip Code clause the query would not execute.
+Adding the Zip Code clause the query takes minutes to finish.
+The bottleneck seems to be with the nppes zipcode scan. 
+![cb_plan_nppes_scan_02.png](img%2Fcb_plan_nppes_scan_02.png)
+![cb_plan_nppes_scan_01.png.png](img%2Fcb_plan_nppes_scan_01.png.png)
 ```sql
 SELECT
     DISTINCT     t.billing_code, ppr.negotiated_rate,npi,nppes.prov_business_zip
@@ -93,7 +96,7 @@ WHERE  t.billing_code = 'J1700'
 AND nppes.prov_business_zip= '56751'
 AND meta(t2).id LIKE 'key::PS1-50_C2%'
 LIMIT 10
-```d
+```
 
 Indices used in the query above
 ```sql
