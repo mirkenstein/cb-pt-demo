@@ -145,7 +145,7 @@ WHERE t.billing_code IN ['J1030','J1700','J0129']
 ### Get aggregate statistics for a given list of procedures for certain region
 
 ```sql
-    SELECT AVG(t.billing_code),
+    SELECT AVG(t.billing_code),SELECT  t.billing_code,AVG(t.negotiated_rates),
        COUNT(DISTINCT npi)
 
 FROM `pt_bucket`.`uh`.`in_network` t
@@ -158,5 +158,7 @@ UNNEST pg.npi npi
 INNER JOIN pt_bucket.provider.nppes nppes ON TONUMBER(nppes.NPI)=npi
 WHERE t.billing_code  IN ['J1030','J1700','J0129']
    AND SUBSTR(nppes.`Provider Business Practice Location Address Postal Code`,0,5)='56751'
-    AND META(t2).id LIKE 'key::PS1-50_C2%';
+    AND META(t2).id LIKE 'key::PS1-50_C2%'
+GROUP BY  t.billing_code
+    ;
 ```
