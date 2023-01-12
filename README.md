@@ -186,9 +186,12 @@ UPDATE pt_bucket.provider.nppes t
 SET t.prov_business_zip=  SUBSTR(t.`Provider Business Practice Location Address Postal Code`,0,5);
 
 UPDATE pt_bucket.provider.nppes t
-SET t.prov_business_zip=  SUBSTR(t.`Provider Business Practice Location Address Postal Code`,0,5);
+SET t.prov_business_zip=  SUBSTR(t.`Provider Business Practice Location Address Postal Code`,0,5)
+WHERE prov_business_zip  IS MISSING
+;
 UPDATE pt_bucket.provider.nppes t
-SET npi_int= TONUMBER(t.NPI);
+SET npi_int= TONUMBER(t.NPI)
+WHERE npi_int  IS MISSING;
 ```
 
 # N1QL 

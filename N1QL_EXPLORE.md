@@ -78,7 +78,7 @@ The bottleneck seems to be with the nppes zipcode scan.
 ![cb_plan_nppes_scan_01.png.png](img%2Fcb_plan_nppes_scan_01.png.png)
 ```sql
 SELECT
-    DISTINCT     t.billing_code, ppr.negotiated_rate,npi,nppes.prov_business_zip
+    DISTINCT     t.billing_code, pr.negotiated_rate,npi,SUBSTR(nppes.`Provider Business Practice Location Address Postal Code`,0,5)
 
 FROM  `pt_bucket`.`uh`.`in_network` t
 
@@ -90,10 +90,10 @@ ON t2.provider_group_id=ppr
 
 UNNEST t2.provider_groups pg
 UNNEST pg.npi npi
-INNER JOIN  pt_bucket.provider.nppes nppes  ON nppes.npi_int=npi
+INNER JOIN  pt_bucket.provider.nppes nppes  ON  TONUMBER(nppes.NPI)=npi
 
-WHERE  t.billing_code = 'J1700'
-AND nppes.prov_business_zip= '56751'
+WHERE  t.billing_code = 'J0129'
+AND SUBSTR(nppes.`Provider Business Practice Location Address Postal Code`,0,5)='01810'
 AND meta(t2).id LIKE 'key::PS1-50_C2%'
 LIMIT 10
 ```
@@ -102,8 +102,7 @@ Indices used in the query above
 ```sql
 CREATE INDEX idx_provider_references ON `default`:`pt_bucket`.`uh`.`in_network`(`billing_code`,(distinct (array (distinct (array `y` for `y` in (`x`.`provider_references`) end)) for `x` in `negotiated_rates` end))) PARTITION BY HASH(`billing_code`)
 CREATE INDEX idx_provider_group_id ON `default`:`pt_bucket`.`uh`.`provider_references`(`provider_group_id`)
-CREATE INDEX adv_npi_int_prov_business_zip ON `default`:`pt_bucket`.`provider`.`nppes`(`npi_int`,`prov_business_zip`)
-```
+CREATE INDEX adv_to_number_NPI_substr0_ProviderBusinessPracticeLocationAddressPostalCode05 ON `default`:`pt_bucket`.`provider`.`nppes`(to_number(`NPI`),substr0(`Provider Business Practice Location Address Postal Code`, 0, 5))```
 
 Index Advisor. Indices not created.
 ```sql
