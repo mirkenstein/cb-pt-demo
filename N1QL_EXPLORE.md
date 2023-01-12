@@ -119,3 +119,44 @@ Error Message when trying to create the index above
   }
 ]
 ```
+
+#  Application Query 2
+### Find rates for a specific provider for a specific procedure
+
+```sql 
+SELECT DISTINCT t.billing_code,
+       pr.negotiated_rate,
+       npi
+
+FROM `pt_bucket`.`uh`.`in_network` t
+UNNEST t.`negotiated_rates` p
+UNNEST p.`provider_references` ppr
+UNNEST p.`negotiated_prices` pr
+INNER JOIN `pt_bucket`.`uh`.provider_references t2 ON t2.provider_group_id=ppr
+UNNEST t2.provider_groups pg
+UNNEST pg.npi npi
+
+WHERE t.billing_code IN ['J1030','J1700','J0129']
+    AND npi=1265066245
+    AND META(t2).id LIKE 'key::PS1-50_C2%';
+``` 
+
+#  Application Query 3
+### Get aggregate statistics for a given list of procedures for certain region
+
+```sql
+    SELECT AVG(t.billing_code),
+       COUNT(DISTINCT npi)
+
+FROM `pt_bucket`.`uh`.`in_network` t
+UNNEST t.`negotiated_rates` p
+UNNEST p.`provider_references` ppr
+UNNEST p.`negotiated_prices` pr
+INNER JOIN `pt_bucket`.`uh`.provider_references t2 ON t2.provider_group_id=ppr
+UNNEST t2.provider_groups pg
+UNNEST pg.npi npi
+INNER JOIN pt_bucket.provider.nppes nppes ON TONUMBER(nppes.NPI)=npi
+WHERE t.billing_code  IN ['J1030','J1700','J0129']
+   AND SUBSTR(nppes.`Provider Business Practice Location Address Postal Code`,0,5)='56751'
+    AND META(t2).id LIKE 'key::PS1-50_C2%';
+```
