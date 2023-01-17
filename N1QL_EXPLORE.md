@@ -109,6 +109,18 @@ Index Advisor. Indices not created.
 CREATE INDEX adv_ALL_provider_groups_npi_meta_id_provider_group_id ON `default`:`pt_bucket`.`uh`.`provider_references`(_ALL ARRAY (ALL ARRAY `npi` FOR npi IN `pg`.`npi` END) FOR pg IN `provider_groups` END,meta().`id`,`provider_group_id`)
 CREATE INDEX adv_ALL_negotiated_rates_provider_references_billing_code ON `default`:`pt_bucket`.`uh`.`in_network`(_ALL ARRAY (ALL ARRAY `ppr` FOR ppr IN `p`.`provider_references` END) FOR p IN `negotiated_rates` END,`billing_code`)
 ```
+Note on restoring indexes after snapshot restore.
+````sql
+BUILD INDEX ON `pt_bucket`.`uh`.provider_references(idx_provider_groups_npi,provider_group_id, idx_billingCode_by_jad) USING GSI;
+BUILD INDEX ON `pt_bucket`.`uh`.in_network(idx_provider_references ) USING GSI;
+BUILD INDEX ON `pt_bucket`.`provider`.nppes(
+adv_EntityTypeCode,
+adv_substr0_ProviderBusinessPracticeLocationAddressPostalCode05_to_number_NPI,
+adv_to_number_NPI_substr0_ProviderBusinessPracticeLocationAddressPostalCode05
+ ) USING GSI;
+
+````
+
 Error Message when trying to create the index above
 ```json
 [
